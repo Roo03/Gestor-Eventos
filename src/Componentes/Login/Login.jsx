@@ -6,68 +6,91 @@ import {
   Grid,
   TextField,
   Typography,
-  Link as MuiLink,
-  Modal,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
-import { mainContainer, loginContainer } from "./LoginStyles";
+import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
+import { mainContainer, loginContainer, boxLogin, titleStyle, subtitleStyle, loginButton, errorMessage } from "./LoginStyles";
 
 function Login() {
-//   const auth = useAuth();
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-//   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginError, setLoginError] = useState("");
 
-//   const validateEmail = (email) => {
-//     const re = /\S+@\S+\.\S+/;
-//     return re.test(email);
-//   };
+  const validateEmail = (email) => {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(email);
+  };
 
-//   const handleLogin = async (e) => {
-//     e.preventDefault();
-//     let valid = true;
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    let valid = true;
 
-//     if (!validateEmail(email)) {
-//       setEmailError("Email inválido");
-//       valid = false;
-//     } else {
-//       setEmailError("");
-//     }
+    if (!validateEmail(email)) {
+      setEmailError("Email inválido");
+      valid = false;
+    } else {
+      setEmailError("");
+    }
 
-//     if (password.length < 6) {
-//       setPasswordError("La contraseña debe tener al menos 6 caracteres");
-//       valid = false;
-//     } else {
-//       setPasswordError("");
-//     }
+    if (password.length < 6) {
+      setPasswordError("La contraseña debe tener al menos 6 caracteres");
+      valid = false;
+    } else {
+      setPasswordError("");
+    }
 
-//     if (valid) {
-//       try {
-//         await auth.login(email, password);
-//         setShowLoginModal(true);
-//       } catch (error) {
-//         console.error("Error logging in:", error);
-//         setLoginError("Email o contraseña incorrectos");
-//       }
-//     }
-//   };
+    if (valid) {
+      try {
+        const loginData = {
+          CorreoElectronico: email,
+          Contraseña: password,
+        };
 
-//   const handleGoogle = async (e) => {
-//     e.preventDefault();
-//     try {
-//       await auth.loginWithGoogle();
-//       setShowLoginModal(true);
-//     } catch (error) {
-//       console.error("Error logging in with Google:", error);
-//     }
-//   };
+        console.log("Sending login data:", loginData);
 
-//   const handleCloseModal = () => {
-//     setShowLoginModal(false);
-//   };
+        const response = await fetch("http://apieventos.somee.com/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(loginData),
+        });
+
+        console.log("Response status:", response.status);
+
+        if (response.status === 200) {
+          const data = await response.json();
+          const token = data.token; // assuming the token is in the response
+          Cookies.set('token', token, { expires: 1 }); // expires in 1 day
+
+          // Fetch user data
+          const userResponse = await fetch('http://apieventos.somee.com/api/usuario', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (userResponse.status === 200) {
+            const userData = await userResponse.json();
+            Cookies.set('user', JSON.stringify(userData), { expires: 1 });
+            navigate("/home");
+          } else {
+            setLoginError("Error al obtener datos del usuario.");
+          }
+        } else if (response.status === 401) {
+          setLoginError("Correo electrónico o contraseña incorrectos.");
+        } else {
+          setLoginError("Error interno del servidor. Inténtalo más tarde.");
+        }
+      } catch (error) {
+        console.error("Error during login request:", error);
+        setLoginError("Error interno del servidor. Inténtalo más tarde.");
+      }
+    }
+  };
 
   return (
     <Box sx={mainContainer}>
@@ -75,22 +98,17 @@ function Login() {
         <Container component="main" maxWidth="xs">
           <Box
             className="boxLogin"
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              backgroundColor: "#FFFFF",
-            }}
+            sx={boxLogin}
           >
-            <Typography component="h1" variant="h5">
+            <Typography component="h1" variant="h5" sx={titleStyle}>
               Agenda en linea
             </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Bienvenido al gestor de eventos 
+            <Typography variant="body2" sx={subtitleStyle}>
+              Bienvenido al gestor de eventos
             </Typography>
-            <Box component="form" noValidate sx={{ mt: 1 }}>
+            <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleLogin}>
               <TextField
-                // onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 margin="normal"
                 required
                 fullWidth
@@ -103,7 +121,7 @@ function Login() {
                 helperText={emailError}
               />
               <TextField
-                // onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 margin="normal"
                 required
                 fullWidth
@@ -116,16 +134,15 @@ function Login() {
                 helperText={passwordError}
               />
               {loginError && (
-                <Typography variant="body2" color="error" align="center" sx={{ mt: 1 }}>
+                <Typography variant="body2" color="error" align="center" sx={errorMessage}>
                   {loginError}
                 </Typography>
               )}
               <Button
-                // onClick={(e) => handleLogin(e)}
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={loginButton}
               >
                 Iniciar sesión
               </Button>
@@ -133,42 +150,6 @@ function Login() {
               </Grid>
             </Box>
           </Box>
-          <Modal
-            // open={showLoginModal}
-            // onClose={handleCloseModal}
-            aria-labelledby="login-modal-title"
-            aria-describedby="login-modal-description"
-          >
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: 300,
-                bgcolor: 'background.paper',
-                border: '2px solid #000',
-                boxShadow: 24,
-                p: 4,
-              }}
-            >
-              <Typography id="login-modal-title" variant="h6" component="h2">
-                Sesión iniciada correctamente
-              </Typography>
-              <Typography id="login-modal-description" sx={{ mt: 2 }}>
-                Has iniciado sesión exitosamente.
-              </Typography>
-              <Button
-                // onClick={handleCloseModal}
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3 }}
-                component={RouterLink} to="/"
-              >
-                Continuar
-              </Button>
-            </Box>
-          </Modal>
         </Container>
       </Container>
     </Box>
