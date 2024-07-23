@@ -1,26 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import EventCard from './EventCard';
-import { gridContainer } from './HomeStyles';
 import Navbar from '../NavHome/Navbar';
 import FiltroEvento from './FiltroEvento';
-import Cookies from 'js-cookie';
+import Pagination from '@mui/material/Pagination';
+import { gridContainer, paginationContainer } from './HomeStyles';
 
 function HomeEventos() {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
-  const [user, setUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const eventsPerPage = 8;
 
   useEffect(() => {
-    const token = Cookies.get('token');
-    const userData = Cookies.get('user');
-    
-    if (token && userData) {
-      // Set user data from cookie
-      setUser(JSON.parse(userData));
-      
-      // Fetch events
-      fetch('http://apieventos.somee.com/api/evento', {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      fetch('http://apieventos.somee.com/api/evento?PageSize=999', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -32,7 +28,7 @@ function HomeEventos() {
         })
         .catch(error => console.error('Error fetching events:', error));
     } else {
-      console.error('No token or user data found');
+      console.error('No token found');
     }
   }, []);
 
@@ -42,16 +38,33 @@ function HomeEventos() {
     } else {
       setFilteredEvents(events.filter(event => event.estadoEvento === filter));
     }
+    setCurrentPage(1); // Reset to first page when filter changes
   };
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
+
+  const startIndex = (currentPage - 1) * eventsPerPage;
+  const endIndex = startIndex + eventsPerPage;
+  const paginatedEvents = filteredEvents.slice(startIndex, endIndex);
 
   return (
     <>
       <Navbar />
       <FiltroEvento onFilterChange={handleFilterChange} />
       <Box sx={gridContainer}>
-        {filteredEvents.map((event, index) => (
-          <EventCard key={index} event={event} user={user} />
+        {paginatedEvents.map((event, index) => (
+          <EventCard key={index} event={event} />
         ))}
+      </Box>
+      <Box sx={paginationContainer}>
+        <Pagination
+          count={Math.ceil(filteredEvents.length / eventsPerPage)}
+          page={currentPage}
+          onChange={handlePageChange}
+          color="primary"
+        />
       </Box>
     </>
   );

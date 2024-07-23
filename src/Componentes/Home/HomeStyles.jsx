@@ -24,34 +24,51 @@ export const titleStyles = {
 
 export const gridContainer = {
   display: "grid",
-  gridTemplateColumns: "repeat(4, 1fr)",
-  gap: "16px",
-  padding: "16px"
+  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+  gap: "25px",
+  padding: "5px",
+  margin: "0 auto",
+  maxWidth: "1200px"
+};
+
+export const paginationContainer = {
+  display: 'flex',
+  justifyContent: 'center',
+  position: 'relative',
+  bottom: 0,
+  width: '100%',
+  marginTop: '2px',
+  paddingBottom: '2px',
 };
 
 export const cardStyles = {
-  height: "315px",
-  Width: "300px",
-  margin: "5px",
-  backgroundColor: "white",
-  boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2)",
-  alignItems: "center",
-  marginTop: "-15px"
+  width: "100%",
+  margin: "16px",
+  backgroundColor: "#f5f5f5",
+  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+  borderRadius: "8px",
+  overflow: "hidden",
+  transition: "transform 0.2s, box-shadow 0.2s",
+  '&:hover': {
+    transform: "scale(1.05)",
+    boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)"
+  }
 };
 
 export const mediaStyles = {
-  height: 140
+  height: 140,
+  filter: "brightness(90%)"
 };
 
 export const cardContentStyles = {
+  padding: "16px",
   display: "flex",
   flexDirection: "column",
   alignItems: "flex-start"
 };
 
 export const cardActionsStyles = {
+  padding: "16px",
   display: "flex",
-  marginLeft: "120px",
-  width: "100%",
-  marginTop: "-20px"
+  width: "100%"
 };

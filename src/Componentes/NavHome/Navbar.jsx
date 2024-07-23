@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AppBar, Box, Button, Toolbar, Typography, IconButton, Drawer, List, ListItem, ListItemText, Divider, Menu, MenuItem } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { navbarStyles, toolbarStyles, buttonStyles, titleStyles, drawerStyles, drawerPaperStyles } from './NavbarStyles';
@@ -9,6 +9,7 @@ function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const navigate = useNavigate();
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -26,15 +27,22 @@ function Navbar() {
   };
 
   const handleLogout = () => {
-    // Aquí puedes agregar la lógica para cerrar sesión
-    console.log('Cerrar sesión');
+    // Limpiar localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("email");
+    localStorage.removeItem("password");
+    localStorage.removeItem("expiration");
+
+    // Redirigir a la página de inicio de sesión
+    navigate("/");
+
     handleClose();
   };
 
   const menuItems = [
     { text: 'Eventos Activos', to: '/Home' },
-    { text: 'Calendario de Ejemplos', to: '#' },
-    { text: 'Mapa de Eventos', to: '#' }
+    { text: 'Eventos Nuevos', to: '/Eventos' },
+    { text: 'Calendario', to: '/Calendario' }
   ];
 
   return (
@@ -103,7 +111,7 @@ function Navbar() {
             <Divider />
             <ListItem button component={Link} to="/" onClick={handleLogout}>
               <AccountCircleIcon sx={{ marginRight: 1 }} />
-              <ListItemText component={Link} to="/" primary="Cerrar Sesión" />
+              <ListItemText primary="Cerrar Sesión" />
             </ListItem>
           </List>
         </Box>
@@ -113,5 +121,3 @@ function Navbar() {
 }
 
 export default Navbar;
-
-// http://apieventos.somee.com/

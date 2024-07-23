@@ -1,0 +1,25 @@
+/* Mapss.css */
+
+/* Estilo para las sugerencias individuales */
+.mapboxgl-ctrl-geocoder--suggestion {
+  background-color: white !important;
+  color: black !important;
+  border-bottom: 1px solid #ccc !important; /* Agregar un borde inferior para separar las sugerencias */
+}
+
+/* Estilo para la sugerencia cuando se pasa el ratón */
+.mapboxgl-ctrl-geocoder--suggestion:hover {
+  background-color: #dadada !important;
+}
+
+/* Estilo para el contenedor de las sugerencias */
+.mapboxgl-ctrl-geocoder--suggestions {
+  background-color: white !important;
+  border: 1px solid #ccc !important; /* Agregar un borde al contenedor */
+}
+
+/* Estilo para el input de búsqueda */
+.mapboxgl-ctrl-geocoder input[type="text"] {
+  background-color: white !important;
+}
+

@@ -3,7 +3,7 @@ import { Box, Button, Container, Grid, TextField, Typography, Link as MuiLink, M
 import { Link as RouterLink } from 'react-router-dom';
 import { mainContainer, imageContainer, RegisterContainer } from "./RegisterStyles";
 
-function Register() {
+function RegistrarEvento() {
 //   const [emailRegister, setEmailRegister] = useState("");
 //   const [passwordRegister, setPasswordRegister] = useState("");
 //   const [firstNameRegister, setFirstNameRegister] = useState(""); 
@@ -180,4 +180,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default RegistrarEvento;

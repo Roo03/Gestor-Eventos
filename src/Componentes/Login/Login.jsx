@@ -8,8 +8,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
 import { mainContainer, loginContainer, boxLogin, titleStyle, subtitleStyle, loginButton, errorMessage } from "./LoginStyles";
+import { Link } from 'react-router-dom';
 
 function Login() {
   const navigate = useNavigate();
@@ -27,30 +27,30 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     let valid = true;
-
+  
     if (!validateEmail(email)) {
       setEmailError("Email inválido");
       valid = false;
     } else {
       setEmailError("");
     }
-
+  
     if (password.length < 6) {
       setPasswordError("La contraseña debe tener al menos 6 caracteres");
       valid = false;
     } else {
       setPasswordError("");
     }
-
+  
     if (valid) {
       try {
         const loginData = {
           CorreoElectronico: email,
           Contraseña: password,
         };
-
+  
         console.log("Sending login data:", loginData);
-
+  
         const response = await fetch("http://apieventos.somee.com/login", {
           method: "POST",
           headers: {
@@ -58,32 +58,21 @@ function Login() {
           },
           body: JSON.stringify(loginData),
         });
-
-        console.log("Response status:", response.status);
-
-        if (response.status === 200) {
+  
+        if (response.ok) {
           const data = await response.json();
-          const token = data.token; // assuming the token is in the response
-          Cookies.set('token', token, { expires: 1 }); // expires in 1 day
+          console.log("Response status:", response.status);
+          console.log("Token:", data.token);
+          console.log("Expiration:", data.expiration);
+          
+          // Guarda solo el token en localStorage
+          localStorage.setItem('token', data.token);
 
-          // Fetch user data
-          const userResponse = await fetch('http://apieventos.somee.com/api/usuario', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-
-          if (userResponse.status === 200) {
-            const userData = await userResponse.json();
-            Cookies.set('user', JSON.stringify(userData), { expires: 1 });
-            navigate("/home");
-          } else {
-            setLoginError("Error al obtener datos del usuario.");
-          }
-        } else if (response.status === 401) {
-          setLoginError("Correo electrónico o contraseña incorrectos.");
+          // Redirige a la ruta /home
+          navigate('/Home');
         } else {
-          setLoginError("Error interno del servidor. Inténtalo más tarde.");
+          const errorData = await response.json();
+          setLoginError(errorData.message || "Error de autenticación");
         }
       } catch (error) {
         console.error("Error during login request:", error);
@@ -96,10 +85,7 @@ function Login() {
     <Box sx={mainContainer}>
       <Container sx={loginContainer}>
         <Container component="main" maxWidth="xs">
-          <Box
-            className="boxLogin"
-            sx={boxLogin}
-          >
+          <Box className="boxLogin" sx={boxLogin}>
             <Typography component="h1" variant="h5" sx={titleStyle}>
               Agenda en linea
             </Typography>
@@ -146,7 +132,15 @@ function Login() {
               >
                 Iniciar sesión
               </Button>
-              <Grid container>
+              <Grid container justifyContent="center" sx={{ mt: 2 }}>
+                <Button
+                  component={Link}
+                  to="/Register"
+                  variant="text"
+                  color="primary"
+                >
+                  ¿No tienes cuenta? Regístrate aquí
+                </Button>
               </Grid>
             </Box>
           </Box>

@@ -38,3 +38,7 @@ export const RegistrationTable = {
     padding: "12px 15px",
   },
 };
+
+export const ContainerEdit = {
+  marginTop:"50px",
+};
